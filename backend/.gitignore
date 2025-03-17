@@ -1,0 +1,12 @@
+# Ignore virtual environment (Flask backend)
+venv/
+
+# Ignore Python bytecode files
+__pycache__/
+*.pyc
+
+# Ignore log files
+*.log
+
+# Ignore environment variables
+.env
