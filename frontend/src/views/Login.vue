@@ -82,10 +82,12 @@ export default {
 
         const submitForm = async () => {
             try {
-                const response = await axios.post("http://localhost:5000/api/login", {
+                const response = await axios.post("http://localhost:5000/auth/login", {
                     email: email.value,
                     password: password.value,
                 });
+
+                console.log(response.data)
 
                 const { access_token, role, user_id, is_first_session } = response.data;
 

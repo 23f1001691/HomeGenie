@@ -27,6 +27,21 @@ const routes = [
     name: 'ProfessionalSignup',
     component: () => import('../views/ProfessionalSignup.vue')
   },
+  {
+    path: '/admin',
+    name: 'AdminDashboard',
+    component: () => import('../views/AdminDashboard.vue')
+  },
+  {
+    path: '/users',
+    name: 'Users',
+    component: () => import('../views/Users.vue')
+  },
+  {
+    path: '/services',
+    name: 'Services',
+    component: () => import('../views/Services.vue')
+  },
 ]
 
 const router = createRouter({

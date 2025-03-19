@@ -32,14 +32,23 @@ export default createStore({
       console.log("Setting first session:", isFirstSession);
       state.isFirstSession = isFirstSession;
       console.log("Set:", state.isFirstSession);
-    }
+    },
+    removeUser(state) {
+      console.log("Removing user details");
+      state.role = null;
+      state.userID = null;
+      console.log("User details removed");
+    },
   },
   actions: {
-    logUser({ commit }, { role, userID, isFirstSession }) {
+    logUser({ commit }, { role, user_id, is_first_session }) {
       commit("setRole", role);
-      commit("setUserID", userID);
-      commit("setIsFirstSession", isFirstSession);
-    }
+      commit("setUserID", user_id);
+      commit("setIsFirstSession", is_first_session);
+    },
+    logOut({ commit }) {
+      commit("removeUser");
+    },
   },
   modules: {
   }

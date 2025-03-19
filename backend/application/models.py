@@ -64,7 +64,7 @@ class Professional(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     service_id = db.Column(db.Integer, db.ForeignKey('service.id'), nullable=True)
     name = db.Column(db.String(100), nullable=False)
-    service_name = db.Column(db.String(100), nullable=True)    
+    service_name = db.Column(db.String(100), nullable=False)    
     contact_no = db.Column(db.Integer, nullable=True)            
     experience = db.Column(db.String(20), nullable=True)
     description = db.Column(db.String, nullable=True)
@@ -81,7 +81,7 @@ class Professional(db.Model):
     service_requests = db.relationship('ServiceRequest',cascade="all,delete",backref="professional")
 
     # Temporarily store category name
-    category = db.Column(db.String(100), nullable=True) 
+    category = db.Column(db.String(100), nullable=False) 
 
     def __repr__(self):
         return f'<Professional {self.user.email}>'
