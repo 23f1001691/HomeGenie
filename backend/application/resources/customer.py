@@ -29,8 +29,87 @@ customer_resource_fields = {
     'profile_pic':fields.String,
     'flag':fields.Boolean
 }
-  
+
+class CustomerAPI(Resource):
+    # @jwt_required()
+    @cache.cached(timeout = 5, key_prefix='customer_data')
+    def get(self, customer_id):
+        customer = Customer.query.get(customer_id)
+        if not customer:
+            return {"message": "Customer_id not found"}, 404
+        
+        if customer.profile_pic and os.path.exists(customer.profile_pic):
+            try:
+                filename = os.path.basename(customer.profile_pic)
+                customer.profile_pic = url_for('serve_profile', filename=filename, _external=True)
+            except Exception as e:
+                return {"message": f"Failed to retrieve the Profile: {str(e)}"}, 500
+        else:
+            customer.profile_pic = None  
+
+        return marshal(customer, customer_resource_fields), 201
+
+    # @jwt_required()
+    # @role_required(["customer","admin"])
+    def put(self, customer_id):
+        customer = Customer.query.get(customer_id)
+        if not customer:
+            return {"message": "Customer_id not found"}, 404
+        
+        if 'profile_pic' in request.files:
+            profile = request.files['profile_pic']
+            
+            if profile.filename == '':
+                return {"message": 'No selected profile'}, 400
+            
+            if not profile_format(profile.filename):
+                return {"message": 'File type not allowed'}, 400
+    
+            filename = secure_filename(profile.filename)
+            path = os.path.join('application/static/profile/', filename)
+            profile.save(path)
+            customer.profile_pic = path
+        
+        if request.form:
+            data = request.form.to_dict()
+        else:
+            data = customer_resource_parser.parse_args()
+            
+        for key,value in data.items():
+            if value is not None:
+                setattr(customer, key, value)
+
+        db.session.commit()
+
+        return {"message":"Customer details updated"}, 200
+    
+    @jwt_required()
+    @role_required(["customer","admin"])
+    def delete(self, customer_id):
+        customer = Customer.query.get(customer_id)
+        if not customer:
+            return {"message":"Customer_id not found"}, 404
+        db.session.delete(customer.user)
+        db.session.commit()
+        return {"message":"Customer_id removed from database"}, 204
+
 class CustomerListAPI(Resource):
+    # @jwt_required()
+    @cache.cached(timeout = 5, key_prefix='customer_list')
+    def get(self):
+        customers = Customer.query.all()
+        if not customers:
+            return {"message":"No customers available"},404
+
+        for customer in customers:
+            if customer.profile_pic and os.path.exists(customer.profile_pic):
+                filename = os.path.basename(customer.profile_pic)
+                customer.profile_pic = url_for('serve_profile', filename=filename, _external=True)
+            else:
+                customer.profile_pic = None     
+
+        return marshal(customers, customer_resource_fields), 201
+
     def post(self):
         data = customer_resource_parser.parse_args()
         email = data.get('email', None)
@@ -59,6 +138,7 @@ class CustomerListAPI(Resource):
         except Exception as e:
             db.session.rollback()
             return {"message": str(e)}, 500 
-    
+
+api.add_resource(CustomerAPI, '/customer/<int:customer_id>')
 api.add_resource(CustomerListAPI, '/customers')
 

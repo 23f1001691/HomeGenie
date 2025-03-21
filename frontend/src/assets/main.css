@@ -95,3 +95,28 @@
       background-color: #4b5563 !important;
   }
 }
+
+body {
+  background: #f8f9fa;
+  min-height: 100vh;
+  /* padding: 20px; */
+}
+
+.stat-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.stat-icon {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+}

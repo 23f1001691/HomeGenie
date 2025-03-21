@@ -4,6 +4,7 @@ from application.extensions import api, db, bcrypt, jwt, cors, mail, cache, init
 import application.resources.category
 import application.resources.prof
 import application.resources.customer
+import application.resources.service
 from application.data import initialize_data
 from flask_jwt_extended import get_jwt
 from application.models import User
