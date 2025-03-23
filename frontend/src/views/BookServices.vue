@@ -221,6 +221,7 @@ export default {
 
         const bookService = async (service, prof) => {
             try {
+                console.log(userID.value)
                 const response = await axios.post('http://localhost:5000/api/service-requests', {
                     service_id: service.id,
                     customer_id: userID.value,

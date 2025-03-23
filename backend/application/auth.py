@@ -31,13 +31,6 @@ def login():
     if user.customer:
         if user.customer.flag == True:
             return jsonify({"message":"Customer is flagged by admin. So could not login."}), 400
-    
-    is_first_session = False
-    if user.is_first_session:  
-        is_first_session = True
-        #Check alternate way to change this field once the user details is updated after the first login
-        user.is_first_session = False 
-        db.session.commit()  
 
     access_token = create_access_token(identity=user.id)
 
@@ -47,13 +40,13 @@ def login():
             "message":"Login Successful",
             "role":user.role,
             "user_id":user.id,
-            "is_first_session":is_first_session
+            "is_first_session":user.is_first_session
         }
     )
 
     set_access_cookies(response, access_token)
 
-    return response.get_json(), 200
+    return response, 200
 
 @app.post('/auth/logout')
 def logout():

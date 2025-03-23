@@ -24,6 +24,7 @@ prof_resource_parser.add_argument('rating', type=float, help='Error: {error_msg}
 prof_resource_parser.add_argument('flag', type=bool, help='Error: {error_msg}')
 prof_resource_parser.add_argument('category', type=str, help='Error: {error_msg}')
 prof_resource_parser.add_argument('is_profile_completed', type=bool, help='Error: {error_msg}')
+prof_resource_parser.add_argument('is_first_session', type=bool, help='Error: {error_msg}')
 
 prof_resource_fields = {
     'id': fields.Integer,
@@ -75,8 +76,8 @@ class ProfessionalAPI(Resource):
 
         return marshal(professional, prof_resource_fields), 200
 
-    # @jwt_required()
-    # @role_required(["professional","admin"])
+    @jwt_required()
+    @role_required(["professional","admin"])
     def put(self, professional_id):
         professional = Professional.query.get(professional_id)
 
@@ -108,17 +109,17 @@ class ProfessionalAPI(Resource):
         for key,value in data.items():
             if key == 'is_profile_completed':
                 professional.user.is_profile_completed = True
+            if key == 'is_first_session':
+                professional.user.is_first_session = False
             if value is not None:
                 setattr(professional, key, value)
 
         if original_status != professional.status and professional.status == "Approved":
-
             if not professional.service_id:
                 service = Service.query.filter_by(name=professional.service_name).first()
                 if not service:
                     professional.status = "Unapproved"
                     return {"message": "Professional can't be approved as the service_name doesn't exist."}, 400
-                
                 professional.service_id = service.id
 
             #Send a mail saying that resume is approved
@@ -142,7 +143,7 @@ class ProfessionalAPI(Resource):
         return {"message":"Professional_id removed from database"}, 204
  
 class ProfessionalListAPI(Resource):
-    # @jwt_required()
+    @jwt_required()
     @cache.cached(timeout = 5, key_prefix='professional_list')
     def get(self):
         professionals = Professional.query.all()
@@ -211,8 +212,8 @@ api.add_resource(ProfessionalAPI, '/professional/<int:professional_id>')
 api.add_resource(ProfessionalListAPI, '/professionals')
 
 class ProfessionalServiceRequestsAPI(Resource):
-    # @jwt_required()
-    # @role_required(["professional"])
+    @jwt_required()
+    @role_required(["professional"])
     def get(self):
         user = User.query.get(get_jwt_identity())
         statuses = request.args.getlist('status')  
@@ -239,8 +240,8 @@ class ProfessionalServiceRequestsAPI(Resource):
                     "date_of_completion": sr.date_of_completion.isoformat() if sr.date_of_completion else None,
                     "description": sr.service.description,
                     "status": sr.status,
-                    "rating": sr.review.rating,
-                    "feedback": sr.review.feedback
+                    "rating": sr.review.rating if sr.review else None,
+                    "feedback": sr.review.feedback if sr.review else None
                 }
                 for sr in requests
             ]

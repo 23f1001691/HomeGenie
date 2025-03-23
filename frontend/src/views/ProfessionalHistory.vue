@@ -4,7 +4,7 @@
     <div class="alert alert-danger" role="alert" v-if="showError">
       {{ error }}
     </div>
-    <div class="table-responsive m-3">
+    <div class="table-responsive m-3" v-if="services.length">
       <h4>CLOSED REQUESTS</h4>
       <table class="table table-hover table-bordered">
         <thead>

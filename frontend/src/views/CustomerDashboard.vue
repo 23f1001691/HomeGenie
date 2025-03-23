@@ -248,7 +248,8 @@ export default {
                 formData.append('address', profileDetails.value.address);
                 formData.append('pincode', profileDetails.value.pincode);
                 formData.append('profile_pic', profileDetails.value.profile);
-                formData.append('is_profile_completed', true)
+                formData.append('is_profile_completed', true);
+                formData.append('is_first_session', false);
 
                 if(!customerID.value){
                     showError.value = true;

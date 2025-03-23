@@ -50,19 +50,19 @@ class ServiceRequestAPI(Resource):
     def put(self, service_request_id):
         args = service_request_parser.parse_args(strict=True)
         service_request = ServiceRequest.query.get(service_request_id)
-        
+
         if not service_request:
             return {"message":"ServiceRequestID not found"}, 404
         
         original_status = service_request.status
         
-        if 'customer_id' in args:
+        if ('customer_id' in args) and (args['customer_id'] is not None):
             return {"message": "customerID cannot be changed after creation"}, 403
                 
         for key,value in args.items():
             if value is not None:
                 setattr(service_request, key, value)  
-        
+                
         db.session.commit()
 
         if original_status != service_request.status and (service_request.status == 'Assigned' or service_request.status == 'Rejected'):

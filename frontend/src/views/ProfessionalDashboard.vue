@@ -279,6 +279,7 @@ export default {
                 formData.append('description', profileDetails.value.description);
                 formData.append('profile_pic', profileDetails.value.profile);
                 formData.append('is_profile_completed', true)
+                formData.append('is_first_session', false);
 
                 if(!profID.value){
                     showError.value = true;

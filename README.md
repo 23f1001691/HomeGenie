@@ -19,3 +19,4 @@ A platform that provides home servicing solutions by connecting service professi
 # jwt get_jwt issue
 # "props.disabled" or false (SubmitBtn) in SNIPPET
 # Login form and registration form frontend validation
+# Customer Req also after cancel req, we need to reload

@@ -19,6 +19,8 @@ customer_resource_parser.add_argument('contact_no', type=int, help='Error: {erro
 customer_resource_parser.add_argument('address', type=str, help='Error: {error_msg}')
 customer_resource_parser.add_argument('pincode', type=int, help='Error: {error_msg}')
 customer_resource_parser.add_argument('flag', type=bool, help='Error: {error_msg}')
+customer_resource_parser.add_argument('is_profile_completed', type=bool, help='Error: {error_msg}')
+customer_resource_parser.add_argument('is_first_session', type=bool, help='Error: {error_msg}')
 
 customer_resource_fields = {
     'id': fields.Integer,
@@ -79,6 +81,8 @@ class CustomerAPI(Resource):
         for key,value in data.items():
             if key == 'is_profile_completed':
                 customer.user.is_profile_completed = True
+            if key == 'is_first_session':
+                customer.user.is_first_session = False
             if value is not None:
                 setattr(customer, key, value)
 
@@ -146,8 +150,8 @@ api.add_resource(CustomerAPI, '/customer/<int:customer_id>')
 api.add_resource(CustomerListAPI, '/customers')
 
 class CustomerServiceRequestsAPI(Resource):
-    # @jwt_required()
-    # @role_required(["customer"])
+    @jwt_required()
+    @role_required(["customer"])
     def get(self):
         user = User.query.get(get_jwt_identity())
         statuses = request.args.getlist('status')  
@@ -179,8 +183,8 @@ class CustomerServiceRequestsAPI(Resource):
         }, 200
 
 class CustomerServiceRequestDetailAPI(Resource):
-    # @jwt_required()
-    # @role_required(["customer"])
+    @jwt_required()
+    @role_required(["customer"])
     def get(self, request_id):
         service_request = ServiceRequest.query.get(request_id)
 

@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, make_response
 from application.config import DevelopmentConfig
 from application.extensions import api, db, bcrypt, jwt, cors, mail, cache, init_excel
 import application.resources.category
@@ -7,9 +7,11 @@ import application.resources.customer
 import application.resources.service
 import application.resources.service_request
 import application.resources.review
+import application.resources.payment
 from application.data import initialize_data
-from flask_jwt_extended import get_jwt
+from flask_jwt_extended import create_access_token, get_jwt, set_access_cookies, get_jwt_identity, jwt_required
 from application.models import User
+from datetime import datetime, timedelta, timezone
 
 def create_app():
     app = Flask(__name__)
@@ -59,6 +61,24 @@ def create_app():
             return response
         except (RuntimeError, KeyError):
             return response
+
+    @app.before_request
+    def handle_preflight():
+        if request.method == "OPTIONS":
+            # Allow preflight requests by responding with status 200
+            response = make_response()
+            response.headers["Access-Control-Allow-Origin"] = "http://localhost:8080"
+            response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
+            response.headers["Access-Control-Allow-Headers"] = "Content-Type, X-CSRF-TOKEN, Authorization"
+            return response
+        
+    @app.after_request
+    def after_request(response):
+        response.headers['Access-Control-Allow-Origin'] = 'http://localhost:8080'
+        response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
+        response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, X-CSRF-TOKEN'
+        response.headers['Access-Control-Allow-Credentials'] = 'true'
+        return response
 
     with app.app_context():
         db.create_all()
