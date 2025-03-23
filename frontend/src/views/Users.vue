@@ -300,7 +300,7 @@ export default {
             if (newValue) {
                 setTimeout(() => {
                     hideMessage();
-                }, 8000);
+                }, 5000);
             }
         });
 
@@ -394,17 +394,25 @@ export default {
 
         const applyFilter = async () => {
             try {
+                customerError.value = '';
+                professionalError.value = '';
 
                 if(selectedFilter.value === 'Customers'){
-                    await loadCustomers(searchQuery.value, selectedFilter.value);
                     chunkedProfessionals.value = []
-                }
-                    
+                    await loadCustomers(searchQuery.value, selectedFilter.value);
+                    if(customerError.value){
+                        chunkedCustomers.value = []
+                        throw Error(customerError)
+                    }      
+                }       
                 else if(selectedFilter.value === 'Professionals'){
-                    await loadProfessionals(searchQuery.value, selectedFilter.value);
                     chunkedCustomers.value =[]
+                    await loadProfessionals(searchQuery.value, selectedFilter.value);
+                    if(professionalError.value){
+                        chunkedProfessionals.value = []
+                        throw Error(professionalError)
+                    }
                 }
-
                 else{
                     searchQuery.value = ""
                     await loadCustomers();

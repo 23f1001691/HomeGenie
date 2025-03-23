@@ -13,3 +13,9 @@ A platform that provides home servicing solutions by connecting service professi
 # While changing, service name in EDIT, service name unique constraint failed
 # Changging second service, changes the value of first one
 # After admin approval  also, it is not re-rendering automatically like delete but it reloads for reject approval
+# Professional rating is shown as 0 in customer dash if its a new professional or the prof who doesnot get any rating
+# Snippet - props.disabled checks for form validation
+# For new professional, if no request is sent. His dash will be empty. DO something for that. For customer req page also. And prof history page also.
+# jwt get_jwt issue
+# "props.disabled" or false (SubmitBtn) in SNIPPET
+# Login form and registration form frontend validation

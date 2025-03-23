@@ -23,6 +23,7 @@ prof_resource_parser.add_argument('status', type=str, help='Error: {error_msg}')
 prof_resource_parser.add_argument('rating', type=float, help='Error: {error_msg}')
 prof_resource_parser.add_argument('flag', type=bool, help='Error: {error_msg}')
 prof_resource_parser.add_argument('category', type=str, help='Error: {error_msg}')
+prof_resource_parser.add_argument('is_profile_completed', type=bool, help='Error: {error_msg}')
 
 prof_resource_fields = {
     'id': fields.Integer,
@@ -105,6 +106,8 @@ class ProfessionalAPI(Resource):
         original_status = professional.status
 
         for key,value in data.items():
+            if key == 'is_profile_completed':
+                professional.user.is_profile_completed = True
             if value is not None:
                 setattr(professional, key, value)
 
@@ -128,8 +131,8 @@ class ProfessionalAPI(Resource):
             
         return {"message":"Professional details updated"}, 200
     
-    @jwt_required()
-    @role_required(["professional","admin"])
+    # @jwt_required()
+    # @role_required(["professional","admin"])
     def delete(self, professional_id):
         professional = Professional.query.get(professional_id)
         if not professional:
@@ -206,4 +209,68 @@ class ProfessionalListAPI(Resource):
 
 api.add_resource(ProfessionalAPI, '/professional/<int:professional_id>')
 api.add_resource(ProfessionalListAPI, '/professionals')
+
+class ProfessionalServiceRequestsAPI(Resource):
+    # @jwt_required()
+    # @role_required(["professional"])
+    def get(self):
+        user = User.query.get(get_jwt_identity())
+        statuses = request.args.getlist('status')  
+
+        query = ServiceRequest.query.filter_by(professional_id=user.professional.id)
+
+        if statuses:
+            query = query.filter(ServiceRequest.status.in_(statuses))
+
+        requests = query.all()
+
+        if not requests:
+            return {"message": "No service requests found."}, 404
+
+        return {
+            "service_requests": [
+                {
+                    "id": sr.id,
+                    "customer_name": sr.customer.name,
+                    "customer_email": sr.customer.user.email,
+                    "customer_no":sr.customer.contact_no,
+                    "customer_pincode":sr.customer.pincode,
+                    "service_name": sr.service.name,
+                    "date_of_completion": sr.date_of_completion.isoformat() if sr.date_of_completion else None,
+                    "description": sr.service.description,
+                    "status": sr.status
+                }
+                for sr in requests
+            ]
+        }, 200
+
+class ProfessionalServiceRequestDetailAPI(Resource):
+    # @jwt_required()
+    # @role_required(["professional"])
+    def get(self, request_id):
+        user = User.query.get(get_jwt_identity())
+
+        service_request = ServiceRequest.query.filter_by(
+            id=request_id, professional_id=user.professional.id
+        ).first()
+
+        if not service_request:
+            return {"message": "Service request not found."}, 404
+
+        return {
+            "id": service_request.id,
+            "customer_name": service_request.customer.name,
+            "customer_email": service_request.customer.user.email,
+            "service_name": service_request.service.name,
+            "description": service_request.service.description,
+            "status": service_request.status,
+        }, 200
+
+
+api.add_resource(ProfessionalServiceRequestsAPI, '/professional/requests')
+api.add_resource(ProfessionalServiceRequestDetailAPI, '/professional/request/<int:request_id>')
+
+
+
+
 

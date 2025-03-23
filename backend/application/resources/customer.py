@@ -6,6 +6,7 @@ from application.models import Customer, User, ServiceRequest
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from application.utils import role_required
 import os
+from application.utils import profile_format
 from sqlalchemy import or_
 
 customer_resource_parser = reqparse.RequestParser(bundle_errors=True)
@@ -76,6 +77,8 @@ class CustomerAPI(Resource):
             data = customer_resource_parser.parse_args()
             
         for key,value in data.items():
+            if key == 'is_profile_completed':
+                customer.user.is_profile_completed = True
             if value is not None:
                 setattr(customer, key, value)
 
@@ -141,4 +144,62 @@ class CustomerListAPI(Resource):
 
 api.add_resource(CustomerAPI, '/customer/<int:customer_id>')
 api.add_resource(CustomerListAPI, '/customers')
+
+class CustomerServiceRequestsAPI(Resource):
+    # @jwt_required()
+    # @role_required(["customer"])
+    def get(self):
+        user = User.query.get(get_jwt_identity())
+        statuses = request.args.getlist('status')  
+
+        query = ServiceRequest.query.filter_by(customer_id=user.customer.id)
+
+        if statuses:
+            query = query.filter(ServiceRequest.status.in_(statuses))
+
+        requests = query.all()
+
+        if not requests:
+            return {"message": "No service requests found."}, 404
+
+        return {
+            "service_requests": [
+                {
+                    "id": sr.id,
+                    "professional_name": sr.professional.name,
+                    "professional_email": sr.professional.user.email,
+                    "professional_no":sr.professional.contact_no,
+                    "service_name": sr.service.name,
+                    "date_of_completion": sr.date_of_completion.isoformat() if sr.date_of_completion else None,
+                    "description": sr.service.description,
+                    "status": sr.status,
+                }
+                for sr in requests
+            ]
+        }, 200
+
+class CustomerServiceRequestDetailAPI(Resource):
+    # @jwt_required()
+    # @role_required(["customer"])
+    def get(self, request_id):
+        user = User.query.get(get_jwt_identity())
+
+        service_request = ServiceRequest.query.filter_by(
+            id=request_id, customer_id=user.customer.id
+        ).first()
+
+        if not service_request:
+            return {"message": "Service request not found."}, 404
+
+        return {
+            "id": service_request.id,
+            "professional_name": service_request.professional.name,
+            "professional_email": service_request.professional.user.email,
+            "service_name": service_request.service.name,
+            "description": service_request.service.description,
+            "status": service_request.status,
+        }, 200
+
+api.add_resource(CustomerServiceRequestsAPI, '/customer/requests')
+api.add_resource(CustomerServiceRequestDetailAPI, '/customer/request/<int:request_id>')
 

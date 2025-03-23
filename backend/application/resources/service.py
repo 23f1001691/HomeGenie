@@ -93,3 +93,59 @@ class ServiceListAPI(Resource):
     
 api.add_resource(ServiceAPI, '/service/<int:service_id>')
 api.add_resource(ServiceListAPI, '/services')
+
+class FilterServicesAPI(Resource):
+    # @jwt_required()
+    # @role_required(["customer"])
+    def get(self):
+
+        filter_by = request.args.get('filter_by',None)
+        search_query = request.args.get('search_query',None)
+        
+        services = Service.query.join(Professional, Service.id == Professional.service_id)
+        print(search_query)
+        
+        if filter_by == 'Category' and search_query:
+            category = Category.query.filter_by(name=search_query).first()
+            services = services.filter(Service.category_id == category.id).all()
+        elif filter_by == 'Service Name' and search_query:
+            services = services.filter(Service.name.ilike(f'%{search_query}%')).all()
+        elif filter_by == 'Pincode' and search_query:
+            services = services.filter(Professional.pincode.ilike(f'%{search_query}%')).all()
+        elif filter_by == 'Rating' and search_query:
+            services = services.filter(Professional.rating >= float(search_query)).all()
+        
+        service_data = []
+
+        for service in services:
+            if len(service.professionals) > 0:
+                professional_marshal = [marshal(prof, prof_resource_fields) for prof in service.professionals if prof.status == 'Approved' 
+                                        and prof.flag == False and prof.user.is_profile_completed == True]
+                service_marshal = marshal(service, service_resource_fields)
+                service_marshal["professionals"] = professional_marshal
+                if(service_marshal["professionals"]):
+                    service_data.append(service_marshal)
+                
+        return service_data, 200
+
+api.add_resource(FilterServicesAPI, '/filter-services') 
+
+class viewServiceAPI(Resource):
+    # @jwt_required()
+    # @role_required(["customer"])
+    def get(self, service_id, prof_id):
+        service = Service.query.get(service_id)
+        if not service:
+            return {"message": "Service not found"}, 404
+
+        professional = next((prof for prof in service.professionals if prof.id == prof_id), None)
+
+        if not professional:
+            return {"message": "Professional not found for the given service"}, 404
+
+        service_marshal = marshal(service, service_resource_fields)
+        service_marshal["professionals"] = dict(marshal(professional, prof_resource_fields))
+                
+        return service_marshal, 200
+
+api.add_resource(viewServiceAPI, '/view-service/<int:service_id>/<int:prof_id>') 

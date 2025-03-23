@@ -42,6 +42,42 @@ const routes = [
     name: 'Services',
     component: () => import('../views/Services.vue')
   },
+  {
+    path: '/customer/:userID',
+    name: 'CustomerDashboard',
+    component: () => import('../views/CustomerDashboard.vue'),
+    props: true
+  },
+  {
+    path: '/book-services/:userID',
+    name: 'BookServices',
+    component: () => import('../views/BookServices.vue'),
+    props: true
+  },
+  {
+    path: '/customer-requests/:userID',
+    name: 'CustomerRequests',
+    component: () => import('../views/CustomerRequests.vue'),
+    props: true
+  },
+  {
+    path: '/professional/:userID',
+    name: 'ProfessionalDashboard',
+    component: () => import('../views/ProfessionalDashboard.vue'),
+    props: true
+  },
+  {
+    path: '/professional-history/:userID',
+    name: 'ProfessionalHistory',
+    component: () => import('../views/ProfessionalHistory.vue'),
+    props: true
+  },
+  {
+    path: '/professional-stats/:userID',
+    name: 'ProfessionalStats',
+    component: () => import('../views/ProfessionalStats.vue'),
+    props: true
+  }
 ]
 
 const router = createRouter({

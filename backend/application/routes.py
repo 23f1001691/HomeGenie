@@ -2,7 +2,8 @@ from flask import send_from_directory, current_app as app, url_for
 from flask_restful import Resource, reqparse, fields, marshal, request
 from flask_jwt_extended import jwt_required
 from application.utils import role_required
-from application.models import Customer, Professional
+from application.models import Customer, Professional, User
+from application.extensions import db
 from application.resources.prof import prof_resource_fields
 from application.resources.customer import customer_resource_fields
 import os 
@@ -16,6 +17,11 @@ def serve_resume(filename):
 @app.get('/profile/<filename>')
 def serve_profile(filename):
     return send_from_directory('static/profile', filename)
+
+# @jwt_required()
+@app.get('/service/<filename>')
+def send_category(filename):
+    return send_from_directory('static/service', filename)
 
 # @jwt_required()
 @app.get('/api/filter-users')
@@ -57,3 +63,15 @@ def filter_users():
         return marshal(professionals,prof_resource_fields), 200
 
     return {"message": "Invalid filter option"}, 400
+
+# @jwt_required()
+@app.get('/get-prof-id/<int:user_id>')
+def get_prof_id(user_id):
+    user = User.query.get(user_id)
+    return {"profID": user.professional.id}, 200
+
+# @jwt_required()
+@app.get('/get-customer-id/<int:user_id>')
+def get_customer_id(user_id):
+    user = User.query.get(user_id)
+    return {"customerID": user.customer.id}, 200

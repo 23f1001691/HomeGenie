@@ -5,6 +5,7 @@ import application.resources.category
 import application.resources.prof
 import application.resources.customer
 import application.resources.service
+import application.resources.service_request
 from application.data import initialize_data
 from flask_jwt_extended import get_jwt
 from application.models import User

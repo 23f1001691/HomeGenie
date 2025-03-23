@@ -49,6 +49,9 @@ export default createStore({
     logOut({ commit }) {
       commit("removeUser");
     },
+    firstSession({ commit }, { isFirstSession }) {
+      commit("setIsFirstSession", isFirstSession);
+    },
   },
   modules: {
   }
