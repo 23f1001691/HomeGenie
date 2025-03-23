@@ -264,7 +264,10 @@ class ProfessionalServiceRequestDetailAPI(Resource):
             "description": service_request.service.description,
             "status": service_request.status,
             "customer_no": service_request.customer.contact_no,
-            "customer_pincode": service_request.customer.pincode
+            "customer_pincode": service_request.customer.pincode,
+            "date_of_completion": service_request.date_of_completion.isoformat() if service_request.date_of_completion else None,
+            "rating": service_request.review.rating if service_request.review else None,
+            "feedback": service_request.review.feedback if service_request.review else None
         }, 200
 
 

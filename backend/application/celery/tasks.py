@@ -5,7 +5,7 @@ import os
 
 @shared_task(bind = True, ignore_result = False)
 def create_csv(self):
-    resource = ServiceRequest.query.filter_by(status_updated_by='Professional',status='Closed').all()
+    resource = ServiceRequest.query.all()
     task_id = self.request.id
     
     if not resource:
