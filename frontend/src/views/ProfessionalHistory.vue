@@ -21,58 +21,32 @@
             <td scope="row">{{ request.id }}</td>
             <td>{{ request.customer_name }}</td>
             <td>{{ request.date_of_completion }}</td>
-            <td>ServiceRequest.rating</td>
+            <td>{{ request.rating }}</td>
             <td>
               <div class="btn-group" role="group">
-                <button
-                  type="button"
-                  class="btn btn-info btn-sm"
-                  data-bs-toggle="modal"
-                  data-bs-target="#viewClosedRequest"
-                  @click="viewService(request.id)"
-                >
+                <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#viewClosedRequest"
+                      @click="viewService(request.id)">
                   View
                 </button>
-                <div
-                  class="modal fade"
-                  id="viewClosedRequest"
-                  tabindex="-1"
-                  aria-labelledby="viewClosedRequestLabel"
-                  aria-hidden="true"
-                >
+                <div class="modal fade" id="viewClosedRequest" tabindex="-1" aria-labelledby="viewClosedRequestLabel" aria-hidden="true">
                   <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content">
                       <div class="modal-header">
-                        <h1
-                          class="modal-title fs-5"
-                          id="viewClosedRequestLabel"
-                        >
+                        <h1 class="modal-title fs-5" id="viewClosedRequestLabel">
                           Service Request Info
                         </h1>
-                        <button
-                          type="button"
-                          @click="initForm"
-                          class="btn-close"
-                          data-bs-dismiss="modal"
-                          aria-label="Close"
-                        ></button>
+                        <button type="button" @click="initForm" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                       </div>
                       <div class="modal-body">
-                        <p>
-                          Customer Name: {{ viewClosedService.customer_name }}
-                        </p>
-                        <p>
-                          Service Name: {{ viewClosedService.service_name }}
-                        </p>
+                        <p>Customer Name: {{ viewClosedService.customer_name }}</p>
+                        <p>Service Name: {{ viewClosedService.service_name }}</p>
+                        <p>Date of Completion: {{ viewClosedService.date_of_completion }}</p>
+                        <p>Feedback: {{ viewClosedService.feedback }}</p>
+                        <p>Rating: {{ viewClosedService.rating }}</p>
                         <p>Status: {{ viewClosedService.status }}</p>
                       </div>
                       <div class="modal-footer">
-                        <button
-                          type="button"
-                          @click="initForm"
-                          class="btn btn-secondary"
-                          data-bs-dismiss="modal"
-                        >
+                        <button type="button" @click="initForm" class="btn btn-secondary" data-bs-dismiss="modal">
                           Close
                         </button>
                       </div>
@@ -90,9 +64,8 @@
 
 <script>
 import ProfessionalNav from "@/components/ProfessionalNav.vue";
-import { ref, onMounted, watch, computed } from "vue";
+import { ref, onMounted, watch } from "vue";
 import axios from "axios";
-import { useStore } from "vuex";
 
 export default {
   name: "ProfessionalHistory",
@@ -104,7 +77,6 @@ export default {
     const viewClosedService = ref({});
     const error = ref("");
     const showError = ref(false);
-    const store = useStore();
 
     watch(showError, (newValue) => {
       if (newValue) {
@@ -125,29 +97,27 @@ export default {
 
     const closedServices = async () => {
       try {
-        const response = await axios.get(
-          "http://localhost:5000/api/professional/requests",
+        const response = await axios.get("http://localhost:5000/api/professional/requests",
           {
             params: {
-              status: "closed",
-            },
+              status: "Closed",
+            }
           }
         );
         services.value = response.data.service_requests;
       } catch (err) {
-        error.value = err.response?.data?.message || err.message;
+        error.value = err.response?.data?.message || 'Error occured';
         showError.value = true;
       }
     };
 
     const viewService = async (id) => {
       try {
-        const response = await axios.get(
-          `http://localhost:5000/api/professional/request/${id}`
-        );
+        const response = await axios.get(`http://localhost:5000/api/professional/request/${id}`);
         viewClosedService.value = response.data;
-      } catch (err) {
-        error.value = err.response?.data?.message || err.message;
+      } 
+      catch (err) {
+        error.value = err.response?.data?.message || 'Error occured';
         showError.value = true;
       }
     };

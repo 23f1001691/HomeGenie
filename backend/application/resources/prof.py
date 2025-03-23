@@ -238,7 +238,9 @@ class ProfessionalServiceRequestsAPI(Resource):
                     "service_name": sr.service.name,
                     "date_of_completion": sr.date_of_completion.isoformat() if sr.date_of_completion else None,
                     "description": sr.service.description,
-                    "status": sr.status
+                    "status": sr.status,
+                    "rating": sr.review.rating,
+                    "feedback": sr.review.feedback
                 }
                 for sr in requests
             ]
@@ -248,11 +250,7 @@ class ProfessionalServiceRequestDetailAPI(Resource):
     # @jwt_required()
     # @role_required(["professional"])
     def get(self, request_id):
-        user = User.query.get(get_jwt_identity())
-
-        service_request = ServiceRequest.query.filter_by(
-            id=request_id, professional_id=user.professional.id
-        ).first()
+        service_request = ServiceRequest.query.get(request_id)
 
         if not service_request:
             return {"message": "Service request not found."}, 404
@@ -264,6 +262,8 @@ class ProfessionalServiceRequestDetailAPI(Resource):
             "service_name": service_request.service.name,
             "description": service_request.service.description,
             "status": service_request.status,
+            "customer_no": service_request.customer.contact_no,
+            "customer_pincode": service_request.customer.pincode
         }, 200
 
 

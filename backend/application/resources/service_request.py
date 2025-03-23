@@ -71,9 +71,8 @@ class ServiceRequestAPI(Resource):
 
         return {"message":"Service_request updated"}
     
-    #Deleting the request is not neccessary. No option is given in frontend. Just for the sake of implementation
-    @jwt_required()
-    @role_required(['customer'])
+    # @jwt_required()
+    # @role_required(['customer'])
     def delete(self, service_request_id):
         service_request = ServiceRequest.query.get(service_request_id)
 
@@ -101,13 +100,13 @@ class ServiceRequestListAPI(Resource):
     # @role_required(['customer'])
     def post(self):
         args = service_request_parser.parse_args(strict=True)
-        new_service_request = ServiceRequest(**args)
-        user = User.query.get(new_service_request.customer_id)
-
+        user = User.query.get(args['customer_id'])
         if not user:
             return {"message":"Unregistered userID"}, 404
-        
-        new_service_request.customer_id = user.customer.id
+        customer = user.customer
+        new_service_request = ServiceRequest(service_id=args['service_id'], 
+                                             professional_id=args['professional_id'],
+                                             customer_id=customer.id)
         db.session.add(new_service_request)
         db.session.commit()
 

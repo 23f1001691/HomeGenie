@@ -21,8 +21,8 @@
                         <td>{{ request.status }}</td>
                         <td>
                             <div class="btn-group" role="group">
-                                <button type="button" v-if="request.status=='requested'" class="btn btn-danger btn-sm"  @click="cancelRequest(request.id)">
-                                    Cancel
+                                <button type="button" v-if="request.status==='Requested'" class="btn btn-danger btn-sm"  @click="cancelRequest(request.id)">
+                                    Cancel Request
                                 </button>
                             </div>
                         </td>
@@ -54,11 +54,11 @@
                                         data-bs-target="#viewRequest" @click="viewDetails(request.id)">
                                     View
                                 </button>
-                                <button type="button" v-if="request.status=='accepted'" 
+                                <button type="button" v-if="request.status==='Assigned'" 
                                         class="btn btn-success btn-sm" @click="createOrder(request.id)">
                                     Pay
                                 </button>
-                                <button type="button" v-if="request.status=='paid'" class="btn btn-success btn-sm" data-bs-toggle="modal" 
+                                <button type="button" v-if="request.status==='Paid'" class="btn btn-success btn-sm" data-bs-toggle="modal" 
                                         data-bs-target="#feedback">
                                     Close
                                 </button>
@@ -155,6 +155,8 @@
                     <div class="modal-body">
                         <p>Professional Name: {{ viewInfo.professional_name }}</p>
                         <p>Service Name:  {{ viewInfo.service_name }}</p>
+                        <p>Professional Number:  {{ viewInfo.professional_number }}</p>
+                        <p>Professional Rating:  {{ viewInfo.professional_rating }}</p>
                         <p>Status: {{ viewInfo.status }}</p>
                     </div>
                     <div class="modal-footer">
@@ -276,14 +278,13 @@ export default {
         }; 
 
         const cancelRequest = async (id) => {
-
             try {
                 const response = await axios.delete(`http://localhost:5000/api/service-request/${id}`);
                 message.value = "Your service request is cancelled" || response.data.message;
                 showMessage.value = true;
                 requestedServices();
             } catch (err) {
-                error.value = err.response?.data?.message || err.message;
+                error.value = err.response?.data?.message || 'Failed to cancel your request';
                 showError.value = true;
                 requestedServices();
             }
@@ -294,13 +295,12 @@ export default {
                 const response = await axios.get(`http://localhost:5000/api/payment/${id}`, {
                     withCredentials: true
                 });
-                console.log(response.data.order, response.data.add_on)
                 const { order, add_on } = response.data;
                 razorpayOrder.value = order;
                 addOns.value = add_on;
                 openRazorpayModal(order, add_on);
-
-            } catch (err) {
+            } 
+            catch (err) {
                 error.value = err.response?.data?.message || err.message;
                 showError.value = true;
             }
@@ -327,13 +327,11 @@ export default {
                     color: '#F37254'
                 }
             };
-
-        const razorpay = new Razorpay(options);
-        razorpay.open();
+            const razorpay = new Razorpay(options);
+            razorpay.open();
         };
 
         const paymentHandler = async (response) => {
-
             const paymentId = response.razorpay_payment_id;
             const orderId = response.razorpay_order_id;
             const signature = response.razorpay_signature;
@@ -345,36 +343,46 @@ export default {
                     order_id: orderId,
                     signature: signature
                 };
-
                 const response = await axios.post('http://localhost:5000/api/payment',paymentData);
-                message.value = response?.data?.message || "Payment succesful!";
+                message.value = response?.data?.message || "Payment successful!";
                 showMessage.value = true;
                 acceptedServices();
-
-            } catch (err) {
-                error.value = err.response?.data?.message || "Payment unsuccesful!" || err.message;
+            } 
+            catch (err) {
+                error.value = err.response?.data?.message || "Payment unsuccessful!"
                 showError.value = true;
                 acceptedServices();
             }
         };
 
-        const closeService = async (id) => {
-
+        const submitReview = async (id) => {
             try {
-                console.log('close',  rating.value, typeof(rating.value))
-                const response = await axios.put(`http://localhost:5000/api/service-request/${id}`,{
-                    status:"closed",
-                    status_updated_by:"customer",
-                    remarks:remarks.value,
+                const response = await axios.post(`http://localhost:5000/api/review`,{
+                    service_request_id:id,
+                    feedback:remarks.value,
                     rating:parseInt(rating.value, 10)
+                });
+            } 
+            catch (err) {
+                console.log(err)
+            }
+        };
+
+        const closeService = async (id) => {
+            try {
+                submitReview(id)
+                const response = await axios.put(`http://localhost:5000/api/service-request/${id}`,{
+                    status:"Closed",
+                    status_updated_by:"Customer",
                 });
                 message.value = "You closed the service" || response.data.message;
                 showMessage.value = true;
                 acceptedServices();
                 closedServices();
                 initForm();
-            } catch (err) {
-                error.value = err.response?.data?.message || err.message;
+            } 
+            catch (err) {
+                error.value = err.response?.data?.message || 'Error occured';
                 showError.value = true;
                 acceptedServices();
                 closedServices();
@@ -388,8 +396,7 @@ export default {
                 const response = await axios.get(`http://localhost:5000/api/customer/request/${id}`);
                 viewInfo.value = response.data;
             } catch (err) {
-                error.value = err;
-                showError.value = true;
+                console.log(err)
             }
         };
 

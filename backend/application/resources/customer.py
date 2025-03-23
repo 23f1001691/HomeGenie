@@ -182,11 +182,7 @@ class CustomerServiceRequestDetailAPI(Resource):
     # @jwt_required()
     # @role_required(["customer"])
     def get(self, request_id):
-        user = User.query.get(get_jwt_identity())
-
-        service_request = ServiceRequest.query.filter_by(
-            id=request_id, customer_id=user.customer.id
-        ).first()
+        service_request = ServiceRequest.query.get(request_id)
 
         if not service_request:
             return {"message": "Service request not found."}, 404
@@ -195,6 +191,8 @@ class CustomerServiceRequestDetailAPI(Resource):
             "id": service_request.id,
             "professional_name": service_request.professional.name,
             "professional_email": service_request.professional.user.email,
+            "professional_number": service_request.professional.contact_no,
+            "professional_rating": service_request.professional.rating,
             "service_name": service_request.service.name,
             "description": service_request.service.description,
             "status": service_request.status,

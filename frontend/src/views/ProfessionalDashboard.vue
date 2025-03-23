@@ -80,6 +80,8 @@
                                             <div class="modal-body">
                                                 <p>Customer Name: {{ viewCurrentService.customer_name }}</p>
                                                 <p>Service Name: {{ viewCurrentService.service_name }}</p>
+                                                <p>Customer Number: {{ viewCurrentService.customer_no }}</p>
+                                                <p>Location (PINCODE): {{ viewCurrentService.customer_pincode }}</p>
                                                 <p>Status: {{ viewCurrentService.status }}</p>
                                             </div>
                                             <div class="modal-footer">
@@ -103,9 +105,7 @@
                                                     data-bs-dismiss="modal" aria-label="Close"></button>
                                             </div>
                                             <div class="modal-body">
-                                                <p class="mb-0">Are you sure about closing the request?
-                                                    Have you been paid for the service?
-                                                </p>
+                                                <p class="mb-0">Are you sure about closing the request?</p>
                                             </div>
                                             <div class="modal-footer">
                                                 <button type="button" class="btn btn-secondary"
@@ -304,7 +304,6 @@ export default {
         };
 
         const requestedServices = async () => {
-
             try {
                 const response = await axios.get('http://localhost:5000/api/professional/requests', {
                     params: {
@@ -319,7 +318,6 @@ export default {
         };
 
         const acceptedServices = async () => {
-
             try {
                 const response = await axios.get('http://localhost:5000/api/professional/requests', {
                     params: {
@@ -343,7 +341,6 @@ export default {
         };
 
         const acceptRequest = async (id) => {
-
             try {
                 const response = await axios.put(`http://localhost:5000/api/service-request/${id}`, {
                     status: 'Assigned'
@@ -381,7 +378,6 @@ export default {
         };
 
         const viewCurrentSR = async (id) => {
-
             try {
                 const response = await axios.get(`http://localhost:5000/api/professional/request/${id}`);
                 viewCurrentService.value = response.data;
