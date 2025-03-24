@@ -7,7 +7,6 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from application.utils import role_required
 import os
 from application.utils import profile_format
-from sqlalchemy import or_
 
 customer_resource_parser = reqparse.RequestParser(bundle_errors=True)
 customer_resource_parser.add_argument('id', type=int, help='Error: {error_msg}')
