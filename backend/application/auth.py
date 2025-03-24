@@ -1,7 +1,7 @@
 from flask import jsonify, request
 from application.models import User
 from flask_jwt_extended import create_access_token, set_access_cookies, unset_jwt_cookies
-from application.extensions import bcrypt, db
+from application.extensions import bcrypt
 from flask import current_app as app
 
 @app.post('/auth/login')

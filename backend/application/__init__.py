@@ -84,7 +84,6 @@ def create_app():
         db.create_all()
         initialize_data()
         init_excel(app)
-        # import application.auth 
 
     return app
         

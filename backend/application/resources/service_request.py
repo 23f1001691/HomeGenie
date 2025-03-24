@@ -36,7 +36,7 @@ service_request_fields = {
 }
 
 class ServiceRequestAPI(Resource):
-    # @jwt_required()
+    @jwt_required()
     @cache.cached(timeout = 5, key_prefix='service_request_data')
     def get(self, service_request_id):
         service_request = ServiceRequest.query.get(service_request_id)
@@ -45,8 +45,8 @@ class ServiceRequestAPI(Resource):
         
         return marshal(service_request,service_request_fields), 201
     
-    # @jwt_required()
-    # @role_required(['customer','professional'])
+    @jwt_required()
+    @role_required(['customer','professional'])
     def put(self, service_request_id):
         args = service_request_parser.parse_args(strict=True)
         service_request = ServiceRequest.query.get(service_request_id)
@@ -68,11 +68,12 @@ class ServiceRequestAPI(Resource):
         if original_status != service_request.status and (service_request.status == 'Assigned' or service_request.status == 'Rejected'):
             pass
             # Send mail to the customer saying whether request is accepted or rejected
+            #Add in future
 
         return {"message":"Service_request updated"}
     
-    # @jwt_required()
-    # @role_required(['customer'])
+    @jwt_required()
+    @role_required(['customer'])
     def delete(self, service_request_id):
         service_request = ServiceRequest.query.get(service_request_id)
 
@@ -87,8 +88,8 @@ class ServiceRequestAPI(Resource):
         return {"message":"Service Request Deleted"}, 204   
     
 class ServiceRequestListAPI(Resource):
-    # @jwt_required()
-    # @role_required(['admin'])
+    @jwt_required()
+    @role_required(['admin'])
     @cache.cached(timeout = 5, key_prefix='service_request_list')
     def get(self):
         service_requests = ServiceRequest.query.all()
@@ -96,8 +97,8 @@ class ServiceRequestListAPI(Resource):
             return {"message":"No service requests available"},404
         return marshal(service_requests, service_request_fields), 201            
 
-    # @jwt_required()
-    # @role_required(['customer'])
+    @jwt_required()
+    @role_required(['customer'])
     def post(self):
         args = service_request_parser.parse_args(strict=True)
         user = User.query.get(args['customer_id'])
@@ -109,8 +110,6 @@ class ServiceRequestListAPI(Resource):
                                              customer_id=customer.id)
         db.session.add(new_service_request)
         db.session.commit()
-
-        # Send a mail to professional about a new request
 
         return {"message":"Your service request is sent. Wait for sometime. Professional will get back to you soon."}, 201
  

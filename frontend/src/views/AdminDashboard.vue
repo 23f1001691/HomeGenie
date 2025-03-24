@@ -65,14 +65,30 @@
         </div>
       </div>
 
+      <!-- <div class="row mt-4">
+          <div class="col-md-6 card border-0 shadow-sm">
+              <h5 style="margin-top: 20px;text-align: center;" class="card-title mb-0">Overall Distribution</h5>
+              <canvas id="chart1" ref="canvasRef1"></canvas>
+          </div>
+          <div class="col-md-6 card border-0 shadow-sm">
+              <h5 style="margin-top: 20px;text-align: center;" class="card-title mb-0">Service Requests</h5>
+              <canvas id="chart2" ref="canvasRef2"></canvas>
+          </div>
+      </div> -->
+
       <div class="row mt-4">
         <div class="col-12">
           <div class="card border-0 shadow-sm">
             <div class="card-body">
-              <div
-                class="d-flex justify-content-between align-items-center mb-4"
-              >
-                <h5 class="card-title mb-0">Graphs</h5>
+              <div class="d-flex justify-content-between align-items-center mb-4">
+                <div class="col-md-6 card border-0 shadow-sm">
+                    <h5 style="margin-top: 20px;text-align: center;" class="card-title mb-0">Overall Distribution</h5>
+                    <!-- <canvas id="chart1" ref="canvasRef1"></canvas> -->
+                </div>
+                <div class="col-md-6 card border-0 shadow-sm">
+                    <h5 style="margin-top: 20px;text-align: center;" class="card-title mb-0">Service Requests</h5>
+                    <!-- <canvas id="chart2" ref="canvasRef2"></canvas> -->
+                </div>
               </div>
             </div>
           </div>

@@ -1,5 +1,4 @@
-from application.extensions import db, bcrypt
-from datetime import datetime
+from application.extensions import db
 from datetime import date
 from sqlalchemy import event
 

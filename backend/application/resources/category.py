@@ -1,5 +1,5 @@
 from flask_restful import Resource, fields, marshal
-from application.extensions import api
+from application.extensions import api, cache
 from application.models import Category
 import os 
 from flask import url_for
@@ -11,6 +11,7 @@ category_resource_fields = {
 }
 
 class CategoriesAPI(Resource):
+    @cache.cached(timeout = 60, key_prefix='category_list')
     def get(self):
         categories = Category.query.all()
         if not categories:

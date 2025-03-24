@@ -47,7 +47,7 @@ prof_resource_fields = {
 }
 
 class ProfessionalAPI(Resource):
-    # @jwt_required()
+    @jwt_required()
     @cache.cached(timeout = 5, key_prefix='professional_data')
     def get(self, professional_id):
         professional = Professional.query.get(professional_id)
@@ -123,24 +123,26 @@ class ProfessionalAPI(Resource):
                 professional.service_id = service.id
 
             #Send a mail saying that resume is approved
+            #Add in future
 
         if original_status != professional.status and professional.status == "Rejected":
             #Send a mail saying that resume is rejected
+            #Add in future
             pass            
 
         db.session.commit()
             
         return {"message":"Professional details updated"}, 200
     
-    # @jwt_required()
-    # @role_required(["professional","admin"])
+    @jwt_required()
+    @role_required(["professional","admin"])
     def delete(self, professional_id):
         professional = Professional.query.get(professional_id)
         if not professional:
-            return {"message":"Professional_id not found"}, 404
+            return {"message":"ProfessionalID not found"}, 404
         db.session.delete(professional.user)
         db.session.commit()
-        return {"message":"Professional_id removed from database"}, 204
+        return {"message":"ProfessionalID removed from database"}, 204
  
 class ProfessionalListAPI(Resource):
     @jwt_required()
@@ -200,7 +202,7 @@ class ProfessionalListAPI(Resource):
             db.session.add(new_professional)
             db.session.commit()
 
-            return {"message": "Customer created successfully"}, 201
+            return {"message": "Professional created successfully"}, 201
         
         except Exception as e:
             db.session.rollback()
@@ -248,8 +250,8 @@ class ProfessionalServiceRequestsAPI(Resource):
         }, 200
 
 class ProfessionalServiceRequestDetailAPI(Resource):
-    # @jwt_required()
-    # @role_required(["professional"])
+    @jwt_required()
+    @role_required(["professional"])
     def get(self, request_id):
         service_request = ServiceRequest.query.get(request_id)
 

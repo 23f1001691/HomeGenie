@@ -33,7 +33,7 @@ customer_resource_fields = {
 }
 
 class CustomerAPI(Resource):
-    # @jwt_required()
+    @jwt_required()
     @cache.cached(timeout = 5, key_prefix='customer_data')
     def get(self, customer_id):
         customer = Customer.query.get(customer_id)
@@ -51,8 +51,8 @@ class CustomerAPI(Resource):
 
         return marshal(customer, customer_resource_fields), 201
 
-    # @jwt_required()
-    # @role_required(["customer","admin"])
+    @jwt_required()
+    @role_required(["customer","admin"])
     def put(self, customer_id):
         customer = Customer.query.get(customer_id)
         if not customer:
@@ -100,7 +100,7 @@ class CustomerAPI(Resource):
         return {"message":"Customer_id removed from database"}, 204
 
 class CustomerListAPI(Resource):
-    # @jwt_required()
+    @jwt_required()
     @cache.cached(timeout = 5, key_prefix='customer_list')
     def get(self):
         customers = Customer.query.all()

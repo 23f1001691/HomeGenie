@@ -24,7 +24,7 @@ service_resource_fields = {
 }
 
 class ServiceAPI(Resource):
-    # @jwt_required()
+    @jwt_required()
     @cache.cached(timeout = 5, key_prefix='service_data')
     def get(self, service_id):
         service = Service.query.get(service_id)
@@ -33,8 +33,8 @@ class ServiceAPI(Resource):
         
         return marshal(service,service_resource_fields), 200
 
-    # @jwt_required()
-    # @role_required(["admin"])
+    @jwt_required()
+    @role_required(["admin"])
     def put(self, service_id):
         args = service_resource_parser.parse_args()
         print(args)
@@ -50,8 +50,8 @@ class ServiceAPI(Resource):
         db.session.commit()
         return {"message":"Service Updated"}, 200
         
-    # @jwt_required()
-    # @role_required(["admin"])
+    @jwt_required()
+    @role_required(["admin"])
     def delete(self, service_id):
         service = Service.query.get(service_id)
         if not service:
@@ -66,8 +66,8 @@ class ServiceAPI(Resource):
         return {"message":"Service Deleted"}, 204    
 
 class ServiceListAPI(Resource):
-    # @jwt_required()
-    # @role_required(["admin","customer"])
+    @jwt_required()
+    @role_required(["admin","customer"])
     @cache.cached(timeout = 5, key_prefix='service_list')
     def get(self):
         services = Service.query.all()
@@ -76,8 +76,8 @@ class ServiceListAPI(Resource):
 
         return marshal(services, service_resource_fields), 201
 
-    # @jwt_required()
-    # @role_required(["admin"])
+    @jwt_required()
+    @role_required(["admin"])
     def post(self):
         args = service_resource_parser.parse_args(strict=True)
         print(args)
@@ -95,15 +95,14 @@ api.add_resource(ServiceAPI, '/service/<int:service_id>')
 api.add_resource(ServiceListAPI, '/services')
 
 class FilterServicesAPI(Resource):
-    # @jwt_required()
-    # @role_required(["customer"])
+    @jwt_required()
+    @role_required(["customer"])
     def get(self):
 
         filter_by = request.args.get('filter_by',None)
         search_query = request.args.get('search_query',None)
         
         services = Service.query.join(Professional, Service.id == Professional.service_id)
-        print(search_query)
         
         if filter_by == 'Category' and search_query:
             category = Category.query.filter_by(name=search_query).first()
@@ -131,8 +130,8 @@ class FilterServicesAPI(Resource):
 api.add_resource(FilterServicesAPI, '/filter-services') 
 
 class viewServiceAPI(Resource):
-    # @jwt_required()
-    # @role_required(["customer"])
+    @jwt_required()
+    @role_required(["customer"])
     def get(self, service_id, prof_id):
         service = Service.query.get(service_id)
         if not service:

@@ -8,22 +8,23 @@ from application.resources.prof import prof_resource_fields
 from application.resources.customer import customer_resource_fields
 import os 
 
-# @jwt_required()
+@jwt_required()
 @app.get('/application/static/resume/<filename>')
 def serve_resume(filename):
     return send_from_directory('static/resume', filename)
 
-# @jwt_required()
+@jwt_required()
 @app.get('/profile/<filename>')
 def serve_profile(filename):
     return send_from_directory('static/profile', filename)
 
-# @jwt_required()
+@jwt_required()
 @app.get('/service/<filename>')
 def send_category(filename):
     return send_from_directory('static/service', filename)
 
-# @jwt_required()
+@jwt_required()
+@role_required(["admin"])
 @app.get('/api/filter-users')
 def filter_users():
 
@@ -64,13 +65,13 @@ def filter_users():
 
     return {"message": "Invalid filter option"}, 400
 
-# @jwt_required()
+@jwt_required()
 @app.get('/get-prof-id/<int:user_id>')
 def get_prof_id(user_id):
     user = User.query.get(user_id)
     return {"profID": user.professional.id}, 200
 
-# @jwt_required()
+@jwt_required()
 @app.get('/get-customer-id/<int:user_id>')
 def get_customer_id(user_id):
     user = User.query.get(user_id)

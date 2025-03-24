@@ -18,8 +18,8 @@ review_fields = {
 }
     
 class ReviewAPI(Resource):      
-    # @jwt_required()
-    # @role_required(['customer'])
+    @jwt_required()
+    @role_required(['customer'])
     def post(self):
         args = review_parser.parse_args(strict=True)
         new_review = Review(service_request_id=args['service_request_id'], 
