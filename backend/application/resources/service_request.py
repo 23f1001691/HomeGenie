@@ -115,3 +115,47 @@ class ServiceRequestListAPI(Resource):
  
 api.add_resource(ServiceRequestListAPI, '/service-requests')
 api.add_resource(ServiceRequestAPI, '/service-request/<int:service_request_id>')
+
+request_count_fields = {
+    'pending': fields.Integer,
+    'rejected':fields.Integer,
+    'accepted': fields.Integer,
+    'paid': fields.Integer,
+    'closed': fields.Integer
+}
+
+class RequestCountAPI(Resource):
+    @jwt_required
+    @role_required(['admin'])
+    def get(self):
+        pending = int(db.session.query(func.count(ServiceRequest.id)).filter(
+            ServiceRequest.status == 'Requested').scalar() or 0)
+        rejected = int(db.session.query(func.count(ServiceRequest.id)).filter(
+                    ServiceRequest.status == 'Rejected').scalar() or 0)
+        accepted = int(db.session.query(func.count(ServiceRequest.id)).filter(
+                    ServiceRequest.status == 'Assigned').scalar() or 0)
+        paid = int(db.session.query(func.count(ServiceRequest.id)).filter(
+                    ServiceRequest.status == 'Paid').scalar() or 0)
+        closed = int(db.session.query(func.count(ServiceRequest.id)).filter(
+                    ServiceRequest.status == 'Closed').scalar() or 0)
+        
+        response_data = {
+            "pending": pending,
+            "rejected": rejected,
+            "accepted": accepted,
+            "paid": paid,
+            "closed": closed
+        }
+
+        return {
+            "pending": pending,
+            "rejected": rejected,
+            "accepted": accepted,
+            "paid": paid,
+            "closed": closed
+        }
+
+        # return marshal(response_data,request_count_fields), 200
+ 
+
+api.add_resource(RequestCountAPI, '/request-count')     

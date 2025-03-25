@@ -8,6 +8,7 @@ import application.resources.service
 import application.resources.service_request
 import application.resources.review
 import application.resources.payment
+import application.resources.prof_dash
 from application.data import initialize_data
 from flask_jwt_extended import create_access_token, get_jwt, set_access_cookies, get_jwt_identity, jwt_required
 from application.models import User
