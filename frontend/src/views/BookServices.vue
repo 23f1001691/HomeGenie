@@ -28,6 +28,7 @@
                 </div>
             </div>
         </nav>
+        <Error :showError="showErrorComponent" title="Sorry!" content="No services available right now" errorHeight="415" />
         <div class="table-responsive m-3" v-if="services.length">
             <h4 class="text-center mb-4">BOOK YOUR SERVICE</h4>
             <table class="table table-hover table-bordered">
@@ -119,9 +120,6 @@
                 </tbody>
             </table>
         </div>
-        <div v-else>
-            <ErrorPage />
-        </div>
     </div>
 
 
@@ -133,13 +131,13 @@ import { useRoute } from 'vue-router';
 import axios from 'axios';
 import CustomerNav from "@/components/CustomerNav.vue";
 import { useStore } from "vuex";
-import ErrorPage from "@/components/404Page.vue"
+import Error from '@/components/Error.vue';
 
 export default {
     name: "BookServices",
     components: {
         CustomerNav,
-        ErrorPage
+        Error
         
     },
     setup() {
@@ -153,6 +151,11 @@ export default {
         const error = ref('');
         const showError = ref(false);
         const store = useStore();
+        const showErrorComponent = ref(false);
+
+        watch([services], () => {
+            showErrorComponent.value = !services.value.length;
+        }, { immediate: true }); 
 
         watch(showError, (newValue) => {
             if (newValue) {
@@ -256,7 +259,8 @@ export default {
             bookService,
             viewDetails,
             viewInfo,
-            initForm
+            initForm,
+            showErrorComponent
         };
     },
 };

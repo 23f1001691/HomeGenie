@@ -9,6 +9,8 @@
             {{ message }}
         </div>
 
+        <Error :showError="showErrorComponent" title="Hey!" content="No requests available" errorHeight="523" />
+
         <div class="table-responsive m-3" v-if="pendingServices.length">
             <h4>SERVICE REQUESTS</h4>
             <table class="table table-hover table-bordered">
@@ -166,12 +168,15 @@ import Snippet from "@/components/Snippet.vue";
 import { ref, onMounted, watch, computed } from 'vue';
 import axios from 'axios';
 import { useStore } from "vuex";
+import Error from '@/components/Error.vue';
+import UsersVue from './Users.vue';
 
 export default {
     name: "ProfessionalDashboard",
     components: {
         ProfessionalNav,
-        Snippet
+        Snippet,
+        Error
     },
     setup() {
         const pendingServices = ref([])
@@ -182,7 +187,8 @@ export default {
         const showMessage = ref(false);
         const error = ref('');
         const showError = ref(false);
-        
+        const showErrorComponent = ref(false);
+   
         const store = useStore();
 
         const profID = ref(null)
@@ -196,6 +202,10 @@ export default {
             address:'',
             description:'', 
         })
+
+        watch([pendingServices, currentServices], () => {
+            showErrorComponent.value = !pendingServices.value.length && !currentServices.value.length;
+        }, { immediate: true }); 
 
         watch(showError, (newValue) => {
             if (newValue) {
@@ -229,6 +239,7 @@ export default {
         };
 
         const userID = computed(() => {
+            console.log(store.state.userID)
             return store.state.userID;
         });
 
@@ -237,6 +248,8 @@ export default {
         });
 
         const checkFirstSession = () => {
+            console.log(userID.value)
+            console.log(store.state.isFirstSession)
             if (isFirstSession.value) {
                 isProfileOpen.value = true;
                 const firstSessionStatus  = false;
@@ -412,6 +425,7 @@ export default {
 
         const getProfID = async () => {
             try {
+                console.log(userID.value)
                 const response = await axios.get(`http://localhost:5000/get-prof-id/${userID.value}`);
                 profID.value = response.data.profID;
             } 
@@ -422,9 +436,9 @@ export default {
         };
 
         onMounted(() => {
-            requestedServices();
-            acceptedServices();
             checkFirstSession();
+            requestedServices();
+            acceptedServices();    
         });
 
         return {
@@ -444,7 +458,8 @@ export default {
             submitProfile,
             profileDetails,
             handleProfileUpload,
-            isFormValid
+            isFormValid,
+            showErrorComponent
         };
     },
 };

@@ -4,6 +4,7 @@
     <div class="alert alert-danger" role="alert" v-if="showError">
       {{ error }}
     </div>
+    <Error :showError="showErrorComponent" title="Hey!" content="No closed requests is available" errorHeight="523" />
     <div class="table-responsive m-3" v-if="services.length">
       <h4>CLOSED REQUESTS</h4>
       <table class="table table-hover table-bordered">
@@ -66,17 +67,24 @@
 import ProfessionalNav from "@/components/ProfessionalNav.vue";
 import { ref, onMounted, watch } from "vue";
 import axios from "axios";
+import Error from '@/components/Error.vue';
 
 export default {
   name: "ProfessionalHistory",
   components: {
     ProfessionalNav,
+    Error
   },
   setup() {
     const services = ref([]);
     const viewClosedService = ref({});
     const error = ref("");
     const showError = ref(false);
+    const showErrorComponent = ref(false);
+
+    watch([services], () => {
+        showErrorComponent.value = !services.value.length;
+    }, { immediate: true }); 
 
     watch(showError, (newValue) => {
       if (newValue) {
@@ -133,6 +141,7 @@ export default {
       error,
       showError,
       initForm,
+      showErrorComponent
     };
   },
 };

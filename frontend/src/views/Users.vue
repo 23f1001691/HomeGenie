@@ -27,6 +27,8 @@
             </div>
         </nav>
 
+        <Error :showError="showErrorComponent" title="Oops!" content="No users available" errorHeight="415" />
+
         <div class="customers m-4" v-if="chunkedCustomers.length">
             <h4>CUSTOMERS</h4>
 
@@ -275,11 +277,13 @@ import AdminNav from '@/components/AdminNav.vue';
 import useCarousel from '@/composables/useCarousel';
 import fetchProfessionals from '@/composables/fetchProfessionals';
 import fetchCustomers from '@/composables/fetchCustomers';
+import Error from '@/components/Error.vue';
 
 export default {
     name: 'Users',
     components: {
-        AdminNav
+        AdminNav,
+        Error
     },
     setup() {
 
@@ -295,6 +299,12 @@ export default {
         const showError = ref(false);
         const searchQuery = ref('');
         const selectedFilter = ref('');
+
+        const showErrorComponent = ref(false);
+
+        watch([chunkedProfessionals, chunkedCustomers], () => {
+            showErrorComponent.value = !chunkedProfessionals.value.length && !chunkedCustomers.value.length;
+        }, { immediate: true }); 
 
         watch(showError, (newValue) => {
             if (newValue) {
@@ -492,6 +502,7 @@ export default {
             error,
             showError,
             initForm,
+            showErrorComponent,
             
             applyFilter,
             searchQuery,

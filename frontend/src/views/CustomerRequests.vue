@@ -1,6 +1,7 @@
 <template>
     <div>
         <CustomerNav />
+        <Error :showError="showErrorComponent" title="Sorry!" content="No requests is made" errorHeight="523" />
         <div class="table-responsive m-3" v-if="pendingServices.length">
             <h4>PENDING SERVICES</h4>
             <table class="table table-hover table-bordered">
@@ -173,17 +174,21 @@
 import { ref, onMounted, watch } from 'vue';
 import axios from 'axios';
 import CustomerNav from "@/components/CustomerNav.vue";
+import Error from '@/components/Error.vue';
 
 export default {
     name: "CustomerRequests",
     components: {
         CustomerNav,
+        Error
     },
     setup() {
         const message = ref('');
         const showMessage = ref(false);
         const error = ref('');
         const showError = ref(false);
+
+        const showErrorComponent = ref(false);
 
         const oldServices = ref([]);
         const pendingServices = ref([])
@@ -196,6 +201,10 @@ export default {
 
         const razorpayOrder = ref(null);
         const addOns = ref(null);
+
+        watch([pendingServices, currentServices, oldServices], () => {
+            showErrorComponent.value = !pendingServices.value.length && !currentServices.value.length && !oldServices.value.length;
+        }, { immediate: true }); 
 
         watch(showError, (newValue) => {
             if (newValue) {
@@ -421,7 +430,8 @@ export default {
             rating,
             viewDetails,
             viewInfo,
-            createOrder
+            createOrder,
+            showErrorComponent
         };
     }
 };
