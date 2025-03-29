@@ -117,74 +117,15 @@
                                         </div>
                                     </div>
                                 </div>
-                                <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal"
-                                    data-bs-target="#editService" @click="displayInfo(service)">
+                                <button type="button" class="btn btn-warning btn-sm" @click="displayInfo(service)">
                                     Edit
                                 </button>
-                                <div class="modal fade" id="editService" tabindex="-1"
-                                    aria-labelledby="editServiceLabel" aria-hidden="true">
-                                    <div class="modal-dialog modal-dialog-centered">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h1 class="modal-title fs-5" id="editServiceLabel">Update Service</h1>
-                                                <button type="button" @click="initForm" class="btn-close"
-                                                    data-bs-dismiss="modal" aria-label="Close"></button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <!-- <div class="mb-3 row">
-                                                    <label for="category" class="col-auto col-form-label">Category</label>
-                                                    <div class="col-auto">
-                                                        <select class="form-select" id="category" 
-                                                            v-model="editedCategory" required>
-                                                            <option :value="category">{{ category }}</option>
-                                                            <option v-for="(options) in filteredOptions" :key="options.id" 
-                                                                            :value="options.name">
-                                                                {{ options.name }}
-                                                            </option>
-                                                        </select>
-                                                    </div>
-                                                </div> -->
-                                                <div class="mb-3 row">
-                                                    <label for="service_name" class="col-auto col-form-label">Service
-                                                        Name</label>
-                                                    <div class="col-auto">
-                                                        <input type="text" class="form-control" id="service_name"
-                                                            v-model="editService.name">
-                                                    </div>
-                                                </div>
-                                                <div class="mb-3 row">
-                                                    <label for="description"
-                                                        class="col-auto col-form-label">Description</label>
-                                                    <div class="col-auto">
-                                                        <input type="text" class="form-control" id="description"
-                                                            v-model="editService.description">
-                                                    </div>
-                                                </div>
-                                                <div class="mb-3 row">
-                                                    <label for="base_price" class="col-auto col-form-label">Base
-                                                        Price</label>
-                                                    <div class="col-auto">
-                                                        <input type="text" class="form-control" id="base_price"
-                                                            v-model="editService.base_price">
-                                                    </div>
-                                                </div>
-                                                <div class="mb-3 row">
-                                                    <label for="time_req" class="col-auto col-form-label">Time
-                                                        Required</label>
-                                                    <div class="col-auto">
-                                                        <input type="text" class="form-control" id="time_req"
-                                                            v-model="editService.time_req">
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-primary"
-                                                    @click="updateService(service)" data-bs-dismiss="modal">Save
-                                                    Changes</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                                <EditService
+                                    :service="selectedService"
+                                    :isVisible="isModalVisible"
+                                    @close="closeModal"
+                                    @update="updateService"
+                                />
                                 <button type="button" class="btn btn-danger btn-sm" @click="deleteService(service)">
                                     Delete
                                 </button>
@@ -299,20 +240,20 @@
 import { ref, onMounted, watch, computed } from 'vue';
 import AdminNav from '@/components/AdminNav.vue';
 import axios from 'axios';
+import EditService from '@/components//EditService.vue';
 
 export default {
     name: 'Services',
     components: {
-        AdminNav
+        AdminNav,
+        EditService
     },
     setup() {
         const professionals = ref([]);
         const services = ref([]);
         const categories = ref([]);
-        const editService = ref({});
+        const serviceDetails = ref({});
         const viewProfInfo = ref({});
-        const category = ref('')
-        const editedCategory = ref('')
         const viewServiceInfo = ref({});
         const newService = ref({
             category: '',
@@ -325,6 +266,8 @@ export default {
         const showError = ref(false);
         const message = ref('');
         const showMessage = ref(false);
+        const isModalVisible = ref(false);
+        const selectedService = ref(null);
 
         watch(showError, (newValue) => {
             if (newValue) {
@@ -357,24 +300,12 @@ export default {
                 base_price: '',
                 time_req: ''
             };
-            category.value = '';
-            editService.value = {};
             viewProfInfo.value = {};
             viewServiceInfo.value = {};
-            editedCategory.value = ''
         };
 
         const serviceExists = computed(() => {
             return services.value.some(service => service.name === viewProfInfo.value.service_name);
-        });
-
-        const filteredOptions = computed(() => {
-            if (!editService.value.category_id) {
-                return categories.value;
-            }
-            const cats = categories.value.filter(category => category.id === editService.value.category_id);
-            category.value = cats.length > 0 ? cats[0].name : null;
-            return categories.value.filter(category => category.id !== editService.value.category_id);
         });
 
         const getProfs = async () => {
@@ -448,15 +379,26 @@ export default {
             }
         };
 
+        const openModal = (service) => {
+            selectedService.value = { ...service };
+            isModalVisible.value = true;
+        };
+
+        const closeModal = () => {
+            isModalVisible.value = false;
+        };
+
         const displayInfo = async (service) => {
             try {
                 const response = await axios.get(`http://localhost:5000/api/service/${service.id}`);
                 if (!response.data) {
                     throw Error(response.data.message || 'Error in fetching this service data. Try again')
                 }
-                editService.value = response.data
-
-            } catch (err) {
+                serviceDetails.value = response.data;
+                openModal(serviceDetails.value);
+                serviceDetails.value = ''
+            } 
+            catch (err) {
                 error.value = err.response?.data?.message || err.message || 'An error occurred';
                 showError.value = true;
             }
@@ -464,12 +406,11 @@ export default {
 
         const updateService = async (service) => {
             try {
-                // editService.value.category = editedCategory.value;
-                console.log(editService.value)
-                const response = await axios.put(`http://localhost:5000/api/service/${service.id}`, editService.value);
+                const response = await axios.put(`http://localhost:5000/api/service/${service.id}`, service);
                 if (!response.data) {
                     throw Error(response.data.message || 'Service is not updated. Try again')
                 }
+                closeModal();
                 message.value = response.data.message || "Service Updated";
                 showMessage.value = true;
                 initForm();
@@ -591,17 +532,16 @@ export default {
             viewProfInfo,
             viewServiceInfo,
             viewService,
-            editService,
             deleteService,
             initForm,
             serviceExists,
-            category,
-            editedCategory,
-            filteredOptions,
             displayInfo,
             addService,
             updateService,
-            newService
+            newService,
+            isModalVisible,
+            selectedService,
+            closeModal
         }
     }
 }

@@ -21,7 +21,7 @@
             <td scope="row">{{ request.id }}</td>
             <td>{{ request.customer_name }}</td>
             <td>{{ request.date_of_completion }}</td>
-            <td>{{ request.rating }}</td>
+            <td>{{ request.rating || 'NULL' }}</td>
             <td>
               <div class="btn-group" role="group">
                 <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#viewClosedRequest"
@@ -41,8 +41,8 @@
                         <p>Customer Name: {{ viewClosedService.customer_name }}</p>
                         <p>Service Name: {{ viewClosedService.service_name }}</p>
                         <p>Date of Completion: {{ viewClosedService.date_of_completion }}</p>
-                        <p>Feedback: {{ viewClosedService.feedback }}</p>
-                        <p>Rating: {{ viewClosedService.rating }}</p>
+                        <p v-if="viewClosedService.feedback">Feedback: {{ viewClosedService.feedback }}</p>
+                        <p v-if="viewClosedService.rating">Rating: {{ viewClosedService.rating }}</p>
                         <p>Status: {{ viewClosedService.status }}</p>
                       </div>
                       <div class="modal-footer">

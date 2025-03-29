@@ -112,7 +112,7 @@
                                                     data-bs-dismiss="modal">Cancel</button>
                                                 <button type="button" class="btn btn-success" 
                                                     @click="closeService(request.id)" 
-                                                    data-bs-dismiss="modal">Book</button>
+                                                    data-bs-dismiss="modal">Close</button>
                                             </div>
                                         </div>
                                     </div>
@@ -277,7 +277,9 @@ export default {
                 formData.append('address', profileDetails.value.address);
                 formData.append('pincode', profileDetails.value.pincode);
                 formData.append('description', profileDetails.value.description);
-                formData.append('profile_pic', profileDetails.value.profile);
+                if (profileDetails.value.profile !== null) {
+                    formData.append('profile_pic', profileDetails.value.profile);
+                }
                 formData.append('is_profile_completed', true)
                 formData.append('is_first_session', false);
 

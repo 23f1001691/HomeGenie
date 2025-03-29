@@ -1,24 +1,17 @@
 # HomeGenie
 A platform that provides home servicing solutions by connecting service professionals with customers, managed by an admin, featuring a clear UI and a robust backend.
 
-# LOGOUT did not remove token from cookies. It just reassigns on subsequent login.
-# Add JWT req and Role req for needed APIs
-# While adding service, add category id
-# @jwt_required doesnot work since token is not added in cookies
-# Admin should get a daily reminder to check new professionals
-# Professional should get a mail once they are approved or rejected
-# Check put method in prof api. Approval. Rejection.
+
 # After delete service, it dont automatically take it away from display. Reload is needed as of now
-# While changing, service name in EDIT, service name unique constraint failed
-# Changing second service, changes the value of first one
 # After admin approval  also, it is not re-rendering automatically like delete but it reloads for reject approval
-# Professional rating is shown as 0 in customer dash if its a new professional or the prof who doesnot get any rating
-# Snippet - props.disabled checks for form validation
 # For new professional, if no request is sent. His dash will be empty. DO something for that. For customer req page also. And prof history page also.
-# jwt get_jwt issue
-# "props.disabled" or false (SubmitBtn) in SNIPPET
 # Login form and registration form frontend validation
 # Customer Req also after cancel req, we need to reload
 # RBAC re-checks
-# Check  prof self closing the req
 # Login, ProfSignup, CusSignup, EditService, NewService, Feedback form validations both frontend and backend
+# Display data in charts
+# If no data to display, ??
+
+404Page
+AutoReload
+Vuex on reload

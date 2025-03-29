@@ -13,9 +13,9 @@ class DevelopmentConfig(Config):
     JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY')
     JWT_COOKIE_SECURE = False
     JWT_TOKEN_LOCATION = ['headers','cookies']
-    JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=2)
     JWT_SESSION_COOKIE = False  
-    JWT_ACCESS_COOKIE_EXPIRES = timedelta(hours=1)
+    JWT_ACCESS_COOKIE_EXPIRES = timedelta(hours=2)
     BUNDLE_ERRORS = True
     PROPAGATE_EXCEPTIONS = True
     JWT_ACCESS_COOKIE_PATH = '/'

@@ -1,12 +1,10 @@
 from flask_restful import Resource, reqparse, fields, marshal
 from application.extensions import api, db, cache
-from application.models import ServiceRequest, User, Professional
+from application.models import ServiceRequest, User, Review, Professional
 from datetime import datetime
 from application.utils import role_required, format_date
 from flask_jwt_extended import jwt_required
 from sqlalchemy import func
-from sqlalchemy import or_
-import json
 
 DATE_FORMAT = '%Y-%m-%d'
 
@@ -70,6 +68,9 @@ class ServiceRequestAPI(Resource):
             # Send mail to the customer saying whether request is accepted or rejected
             #Add in future
 
+        if original_status != service_request.status and service_request.status == 'Closed':
+            update_rating(service_request.professional_id)
+
         return {"message":"Service_request updated"}
     
     @jwt_required()
@@ -116,46 +117,14 @@ class ServiceRequestListAPI(Resource):
 api.add_resource(ServiceRequestListAPI, '/service-requests')
 api.add_resource(ServiceRequestAPI, '/service-request/<int:service_request_id>')
 
-request_count_fields = {
-    'pending': fields.Integer,
-    'rejected':fields.Integer,
-    'accepted': fields.Integer,
-    'paid': fields.Integer,
-    'closed': fields.Integer
-}
+def update_rating(professional_id):
+    professional = Professional.query.get(professional_id)
 
-class RequestCountAPI(Resource):
-    @jwt_required
-    @role_required(['admin'])
-    def get(self):
-        pending = int(db.session.query(func.count(ServiceRequest.id)).filter(
-            ServiceRequest.status == 'Requested').scalar() or 0)
-        rejected = int(db.session.query(func.count(ServiceRequest.id)).filter(
-                    ServiceRequest.status == 'Rejected').scalar() or 0)
-        accepted = int(db.session.query(func.count(ServiceRequest.id)).filter(
-                    ServiceRequest.status == 'Assigned').scalar() or 0)
-        paid = int(db.session.query(func.count(ServiceRequest.id)).filter(
-                    ServiceRequest.status == 'Paid').scalar() or 0)
-        closed = int(db.session.query(func.count(ServiceRequest.id)).filter(
-                    ServiceRequest.status == 'Closed').scalar() or 0)
-        
-        response_data = {
-            "pending": pending,
-            "rejected": rejected,
-            "accepted": accepted,
-            "paid": paid,
-            "closed": closed
-        }
+    rating = (db.session.query(func.avg(Review.rating)) 
+    .join(ServiceRequest, ServiceRequest.id == Review.service_request_id) 
+    .filter(ServiceRequest.professional_id == Professional.id)  
+    .scalar() or 0)
 
-        return {
-            "pending": pending,
-            "rejected": rejected,
-            "accepted": accepted,
-            "paid": paid,
-            "closed": closed
-        }
+    professional.rating = rating
+    db.session.commit()
 
-        # return marshal(response_data,request_count_fields), 200
- 
-
-api.add_resource(RequestCountAPI, '/request-count')     

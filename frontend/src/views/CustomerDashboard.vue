@@ -247,7 +247,9 @@ export default {
                 const formData = new FormData();
                 formData.append('address', profileDetails.value.address);
                 formData.append('pincode', profileDetails.value.pincode);
-                formData.append('profile_pic', profileDetails.value.profile);
+                if (profileDetails.value.profile !== null) {
+                    formData.append('profile_pic', profileDetails.value.profile);
+                }
                 formData.append('is_profile_completed', true);
                 formData.append('is_first_session', false);
 

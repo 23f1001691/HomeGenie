@@ -37,7 +37,6 @@ class ServiceAPI(Resource):
     @role_required(["admin"])
     def put(self, service_id):
         args = service_resource_parser.parse_args()
-        print(args)
         service = Service.query.get(service_id)
         if not service:
             return {"message":"ServiceID failed. Could not update the service."}, 404

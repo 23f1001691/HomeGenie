@@ -6,7 +6,7 @@
                 <h4 class="mb-0 px-3">Dashboard Overview</h4>
             </div>
 
-            <!-- <div class="bg-light mb-5">
+            <div class="bg-light mb-5" v-if="userData">
                 <div class="container-fluid">
                     <div class="row justify-content-center">
                         <div class="col-lg-12">
@@ -30,13 +30,16 @@
                                                 <button class="btn btn-secondary px-4 rounded-pill">
                                                     Rating
                                                 </button>
-                                                <div class="col-auto">
-                                                    <div class="rate">
-                                                        <span v-for="star in 5" :key="star" class="star" :class="{ 'filled': userData.rating >= star }">★</span>
-                                                    </div>
-                                                </div>
-                                                <button class="btn btn-outline-secondary px-4 rounded-pill">
+                                                <button class="btn px-4">
                                                     {{ userData.rating }}
+                                                </button>
+                                            </div>
+                                            <div class="d-flex gap-3 mb-4">
+                                                <button class="btn btn-secondary px-4 rounded-pill">
+                                                    Income Earned
+                                                </button>
+                                                <button class="btn px-4">
+                                                    {{ userData.income }}
                                                 </button>
                                             </div>
                                         </div>
@@ -46,19 +49,21 @@
                         </div>
                     </div>
                 </div>
-            </div> -->
+            </div> 
   
             <div class="row">
                 <div class="col-12">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center mb-4">
-                            <div class="col-md-6 card border-0 shadow-sm px-4">
-                                <h5 style="margin-top: 20px;text-align: center;" class="card-title mb-3">Monthly Revenue</h5>
-                                <canvas ref="canvasRef1"></canvas>
+                            <div class="col-md-6 card border-0 shadow-sm px-4 pb-4">
+                                <h5 style="margin-top: 20px;text-align: center;" class="card-title mb-4">Monthly Revenue</h5>
+                                <Error :showError="showError1" :title="errorTitle" :content="errorContent" errorHeight="285" />
+                                <canvas ref="canvasRef1" v-if="!showError1"></canvas>
                             </div>
-                            <div class="col-md-6 card border-0 shadow-sm px-4">
-                                <h5 style="margin-top: 20px;text-align: center;" class="card-title mb-3">Service Requests</h5>
-                                <canvas ref="canvasRef2"></canvas>
+                            <div class="col-md-6 card border-0 shadow-sm px-4 pb-4">
+                                <h5 style="margin-top: 20px;text-align: center;" class="card-title mb-4">Service Requests</h5>
+                                <Error :showError="showError2" :title="errorTitle" :content="errorContent" errorHeight="285" />
+                                <canvas ref="canvasRef2" v-if="!showError2"></canvas>
                             </div>
                         </div>
                     </div>
@@ -88,14 +93,16 @@
 
 <script>
 import ProfessionalNav from "@/components/ProfessionalNav.vue";
-import { onMounted, ref, computed } from 'vue';
+import { onMounted, ref, computed, watch } from 'vue';
 import axios from "axios";
 import { useRoute } from 'vue-router';
+import Error from '@/components/Error.vue';
 
 export default {
     name: "ProfessionalStats",
     components: {
         ProfessionalNav,
+        Error
     },
     setup() {
         const canvasRef1 = ref(null);
@@ -106,12 +113,16 @@ export default {
         const route = useRoute();  
         const profID = ref(null);
         const userData = ref({});
+
+        const showError1 = ref(false)
+        const showError2 = ref(false)
+
+        const errorTitle = ref("Sorry!")
+        const errorContent = ref("No data available right now.")
         
         const userID = computed(() => {
             return route.params.userID
         });
-        
-        // const adChartData = JSON.parse('{{ ref2Data | safe }}'); 
 
         const getProfID = async () => {
             try {
@@ -120,42 +131,34 @@ export default {
                 getData();
             } 
             catch (err) {
-                error.value = 'Could not fetch profID';
-                showError.value = true;
-            }
-        };
-
-        const getData = async () => {
-            try {
-                const response = await axios.get(`http://localhost:5000/api/prof-dash/${profID.value}`);
-                userData.value = response.data;
-                ref1Data.value = response.data.data1;
-                console.log(response.data.data1)
-                console.log(ref1Data.value)
-                console.log(response.data)
-                console.log(userData.value)
-            } catch (err) {
                 console.log(err)
             }
         };
 
-        onMounted(() => {
-            getProfID();
+        watch(ref1Data, (newData) => {
+            showError1.value = newData.every(item => item === 0);
+            console.log(showError1.value)
+        });
 
+        watch(ref2Data, (newData) => {
+            showError2.value = newData.every(item => item === 0);
+            console.log(showError2.value)
+        });
+
+        const getCharts = () => {
             const ctx1 = canvasRef1.value.getContext('2d');
             const ctx2 = canvasRef2.value.getContext('2d');
 
-            // 'rgb(75, 192, 192)'
-
             new Chart(ctx1, {
-                type: 'line',
+                type: 'bar',
                 data: {
                     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
                     datasets: [{
                         label: 'Revenue',
-                        data: [5000, 7000, 6500, 8000, 9500, 11000, 12000, 11500, 13000, 14500, 13500, 15000],
-                        borderColor: '#4e73df',
-                        tension: 0.1
+                        backgroundColor: "#4e73df",
+                        hoverBackgroundColor: "#2e59d9",
+                        borderColor: "#4e73df",
+                        data: ref1Data.value
                     }]
                 },
                 options: {
@@ -169,31 +172,58 @@ export default {
             });
 
             new Chart(ctx2, {
-                type: 'bar',
+                type: 'doughnut',
                 data: {
                     labels: ['Pending', 'Accepted', 'Rejected', 'Closed'],
                     datasets: [{
-                        label: 'Service Request Status',
-                        backgroundColor: "#4e73df",
-                        hoverBackgroundColor: "#2e59d9",
-                        borderColor: "#4e73df",
-                        data: [1, 2, 3, 4],
-                    }],
+                        data: ref2Data.value,
+                        backgroundColor: [
+                            'rgb(255, 99, 132)',
+                            'rgb(54, 162, 235)',
+                            'rgb(255, 206, 86)',
+                            'rgb(75, 192, 192)',
+                        ]
+                    }]
                 },
                 options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true
+                    aspectRatio: 2,
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'right',
                         }
                     }
                 }
             });
+        }
+
+        const getData = async () => {
+            try {
+                const response = await axios.get(`http://localhost:5000/api/prof-dash/${profID.value}`);
+                userData.value = response.data;
+                ref1Data.value = response.data.rev_data;
+                ref2Data.value = response.data.req_data
+                console.log(response.data.rev_data, response.data.req_data)
+                console.log(ref1Data.value, ref2Data.value)
+                getCharts();
+            } 
+            catch (err) {
+                console.log(err)
+            }
+        };
+
+        onMounted(() => {
+            getProfID();
         });
 
         return {
             userData,
             canvasRef1,
-            canvasRef2
+            canvasRef2,
+            showError2,
+            showError1,
+            errorContent,
+            errorTitle
         };
     }
 };

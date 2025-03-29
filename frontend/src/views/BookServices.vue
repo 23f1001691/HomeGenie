@@ -46,7 +46,7 @@
                             <td scope="row">{{ service.name }}</td>
                             <td>{{ prof.name }}</td>
                             <td>{{ service.base_price }}</td>
-                            <td>{{ prof.rating ? prof.rating : '0' }}</td>
+                            <td>{{ prof.rating ? prof.rating : 'NULL' }}</td>
                             <td>
                                 <div class="btn-group" role="group">
                                     <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal"
