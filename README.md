@@ -57,14 +57,13 @@ A modern, full-stack platform for booking and managing household services, built
   ```
 
 **Backend Setup:**
-- Create a virtual environment and activate it.
-- Install dependencies:
   ```
+  python -m venv venv
+  ./venv/Scripts/Activate.ps1
   pip install -r requirements.txt
   ```
 
 **Frontend Setup:**
-- Navigate to the frontend directory:
   ```
   cd frontend
   npm install
@@ -73,6 +72,9 @@ A modern, full-stack platform for booking and managing household services, built
 
 **Start Redis and Celery Workers:**
 - Start Redis server.
+  ```
+  redis-server
+  ```
 - In a new terminal, start Celery worker:
   ```
   celery -A app.celery worker --loglevel=info
