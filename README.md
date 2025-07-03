@@ -9,9 +9,7 @@ A modern, full-stack platform for booking and managing household services, built
 - [Overview](#overview)
 - [Features](#features)
 - [Tech Stack](#tech-stack)
-- [Milestones](#milestones)
 - [Setup Instructions](#setup-instructions)
-- [Project Structure](#project-structure)
 - [Contributors](#contributors)
 - [License](#license)
 
@@ -53,10 +51,10 @@ A modern, full-stack platform for booking and managing household services, built
 ## Setup Instructions
 
 1. **Clone the repository:**
-```
-git clone https://github.com/yourusername/HomeGenie.git
-cd HomeGenie
-```
+  ```
+  git clone https://github.com/yourusername/HomeGenie.git
+  cd HomeGenie
+  ```
 
 2. **Backend Setup:**
 - Create a virtual environment and activate it.
@@ -81,10 +79,12 @@ cd HomeGenie
   ```
 
 5. **Run Flask Backend:**
-python app.py
+  ```
+  python app.py
+  ```
 
-6. **Access the application:**  
-Visit `http://localhost:8080` for the frontend and `http://localhost:5000` for the backend API.
+7. **Access the application:**  
+- Visit `http://localhost:8080` for the frontend and `http://localhost:5000` for the backend API.
 
 ---
 
